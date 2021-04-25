@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class Test {
+public class MainSolution {
     public static final String RESOURCES_PATH = "src/main/resources/";
 
     public static final String FOLLOWERS_FILE = RESOURCES_PATH + "followers.csv";
