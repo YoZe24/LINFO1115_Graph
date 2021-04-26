@@ -14,7 +14,11 @@ public class MainSolution {
     public static final String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
 
     public static void main(String[] args) {
-        HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
+        //HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createPartialGraph(FOLLOWERS_FILE);
+
+        HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
+        System.out.println(Algorithms.countComponents(graph));
+
         printGraph(graph);
     }
 

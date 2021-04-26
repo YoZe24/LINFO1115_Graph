@@ -10,7 +10,35 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class CSVHandler {
-    public static HashMap<Designer, HashSet<Followed>> createGraph(String followers_file, String designers_file, String shots_file){
+    // Create a graph without all information, only with followers.csv
+    public static HashMap<Designer,HashSet<Followed>> createPartialGraph(String followers_file){
+        HashMap<Designer,HashSet<Followed>> graph = new HashMap<>();
+
+        try {
+            CSVReader reader = new CSVReader(new FileReader(followers_file));
+            reader.skip(1);
+
+            String[] line = reader.readNext();
+            while(line != null){
+                Designer follower = new Designer(Integer.parseInt(line[0]));
+                Designer followed = new Designer(Integer.parseInt(line[1]));
+                Followed follow = new Followed(followed,Integer.parseInt(line[2]));
+
+                if (!graph.containsKey(follower)) {
+                    graph.put(follower, new HashSet<>());
+                }
+                graph.get(follower).add(follow);
+                line = reader.readNext();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return graph;
+    }
+
+    // Create a graph with all information
+    public static HashMap<Designer, HashSet<Followed>> createCompleteGraph(String followers_file, String designers_file, String shots_file){
         HashMap<Designer, HashSet<Followed>> graph = new HashMap<>();
 
         // Shots
