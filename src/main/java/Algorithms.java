@@ -7,6 +7,14 @@ import java.util.HashSet;
 public class Algorithms {
     public static HashSet<Designer> marked;
 
+    public static int countEdges(HashMap<Designer, HashSet<Followed>> graph){
+        int count = 0;
+        for (Designer designer : graph.keySet()) {
+            count += graph.get(designer).size();
+        }
+        return count;
+    }
+
     public static int countComponents(HashMap<Designer, HashSet<Followed>> graph) {
         int count = 0;
         marked = new HashSet<>();

@@ -17,9 +17,14 @@ public class MainSolution {
         //HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createPartialGraph(FOLLOWERS_FILE);
 
         HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
-        System.out.println(Algorithms.countComponents(graph));
 
-        printGraph(graph);
+        int countEdges = Algorithms.countEdges(graph);
+        int countComponents = Algorithms.countComponents(graph);
+
+        System.out.println("Nombre d'edges : " + countEdges + "\n" +
+                           "Nombre de components : " + countComponents + "\n");
+
+        //printGraph(graph);
     }
 
     public static void printGraph(HashMap<Designer, HashSet<Followed>> graph){
