@@ -1,4 +1,7 @@
+import model.Designer;
+import model.Followed;
 import utils.CSVHandler;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,13 +14,12 @@ public class MainSolution {
     public static final String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
 
     public static void main(String[] args) {
-        HashMap<Integer, HashSet<Integer>> graph = CSVHandler.createGraph(FOLLOWERS_FILE);
-
+        HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
         printGraph(graph);
     }
 
-    public static void printGraph(HashMap<Integer,HashSet<Integer>> graph){
-        for (Map.Entry<Integer, HashSet<Integer>> entry : graph.entrySet()) {
+    public static void printGraph(HashMap<Designer, HashSet<Followed>> graph){
+        for (Map.Entry<Designer, HashSet<Followed>> entry : graph.entrySet()) {
             System.out.println(entry);
         }
     }
