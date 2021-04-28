@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class CSVHandler {
+public class GraphHandler {
     // Create a graph without all information, only with followers.csv
     public static HashMap<Designer,HashSet<Followed>> createPartialGraph(String followers_file){
         HashMap<Designer,HashSet<Followed>> graph = new HashMap<>();
@@ -105,6 +105,44 @@ public class CSVHandler {
             e.printStackTrace();
         }
 
+        return graph;
+    }
+
+    // Creates a mock graph based on the resources/mockGraph.png
+    public static HashMap<Designer, HashSet<Followed>> createMockGraph(){
+        HashMap<Designer, HashSet<Followed>> graph = new HashMap<>();
+        for (int i = 1; i <= 10; i++) {
+            Designer designer = new Designer(i);
+            graph.put(new Designer(i),new HashSet<>());
+            switch (i){
+                case 1:
+                    graph.get(designer).add(new Followed(new Designer(2),1));
+                    graph.get(designer).add(new Followed(new Designer(5),2));
+                    break;
+                case 3:
+                    graph.get(designer).add(new Followed(new Designer(1),3));
+                    break;
+                case 4:
+                    graph.get(designer).add(new Followed(new Designer(5),4));
+                    break;
+                case 5:
+                    graph.get(designer).add(new Followed(new Designer(3),2));
+                    graph.get(designer).add(new Followed(new Designer(8),1));
+                    break;
+                case 6:
+                    graph.get(designer).add(new Followed(new Designer(10),3));
+                    break;
+                case 7:
+                    graph.get(designer).add(new Followed(new Designer(5),5));
+                    graph.get(designer).add(new Followed(new Designer(6),1));
+                    break;
+                case 8:
+                    graph.get(designer).add(new Followed(new Designer(6),1));
+                    break;
+                case 10:
+                    graph.get(designer).add(new Followed(new Designer(3),2));
+            }
+        }
         return graph;
     }
 }

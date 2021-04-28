@@ -1,6 +1,6 @@
 import model.Designer;
 import model.Followed;
-import utils.CSVHandler;
+import utils.GraphHandler;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,14 +15,15 @@ public class MainSolution {
 
     public static void main(String[] args) {
         //HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createPartialGraph(FOLLOWERS_FILE);
+        //HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
 
-        HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
-
+        HashMap<Designer, HashSet<Followed>> graph = GraphHandler.createMockGraph();
         int countEdges = Algorithms.countEdges(graph);
         int countComponents = Algorithms.countComponents(graph);
 
         System.out.println("Nombre d'edges : " + countEdges + "\n" +
                            "Nombre de components : " + countComponents + "\n");
+
 
         //printGraph(graph);
     }
