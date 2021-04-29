@@ -13,19 +13,36 @@ public class MainSolution {
     public static final String DESIGNERS_FILE = RESOURCES_PATH + "designers.csv";
     public static final String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
 
-    public static void main(String[] args) {
-        //HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createPartialGraph(FOLLOWERS_FILE);
-        //HashMap<Designer, HashSet<Followed>> graph = CSVHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
+    // Choose 0 | 1 | 2
+    public static final int GRAPH_CHOOSER = 1;
+    public static HashMap<Designer, HashSet<Followed>> graph = null;
 
-        HashMap<Designer, HashSet<Followed>> graph = GraphHandler.createMockGraph();
+    public static void main(String[] args) {
+        graph = chooseGraph(GRAPH_CHOOSER);
+
         int countEdges = Algorithms.countEdges(graph);
         int countComponents = Algorithms.countComponents(graph);
 
         System.out.println("Nombre d'edges : " + countEdges + "\n" +
                            "Nombre de components : " + countComponents + "\n");
 
-
         //printGraph(graph);
+    }
+
+    public static HashMap<Designer, HashSet<Followed>> chooseGraph(int r){
+        HashMap<Designer, HashSet<Followed>> graph = null;
+        switch (r) {
+            case 0:
+                graph = GraphHandler.createPartialGraph(FOLLOWERS_FILE);
+                break;
+            case 1:
+                graph = GraphHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
+                break;
+            case 2:
+                graph = GraphHandler.createMockGraph();
+                break;
+        }
+        return graph;
     }
 
     public static void printGraph(HashMap<Designer, HashSet<Followed>> graph){
