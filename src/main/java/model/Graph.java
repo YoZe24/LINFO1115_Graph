@@ -33,8 +33,10 @@ public class Graph {
                 break;
             case UNDIRECTED:
                 this.graph = GraphHandler.createUndirectedGraph(FOLLOWERS_FILE);
+                break;
             case MOCK_UNDIRECTED:
                 this.graph = GraphHandler.createMockUndirectedGraph();
+                break;
         }
 
         this.V = this.graph.size();

@@ -53,14 +53,22 @@ public class Algorithms {
     
     public int bridges(Graph graph){
         HashSet<Followed> edges = graph.getAllE();
-        int nb = 0;
+        HashSet<Followed> bridges = new HashSet<>();
+
+        int i = 0;
         for (Followed edge : edges) {
+            marked = new HashSet<>();
             graph.removeUndirectedEdge(edge.getFollower(), edge);
             dfs(graph, edge.getFollower());
-            graph.addEdge(edge.getFollower(), edge.getWho(), edge.getTimeStamp());
-
-            if (marked.contains(edge.getWho())) nb++;
+            if (marked.contains(edge.getWho())) {
+                if (!bridges.contains(new Followed(edge.getFollower(),edge.getWho(), edge.getTimeStamp())) && !bridges.contains(new Followed(edge.getWho(), edge.getFollower(), edge.getTimeStamp()))){
+                    bridges.add(edge);
+                }
+            }
+            System.out.println(i);
+            i++;
+            graph.addUndirectedEdge(edge.getFollower(), edge.getWho(), edge.getTimeStamp());
         }
-        return nb;
+        return bridges.size();
     }
 }

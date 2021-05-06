@@ -6,7 +6,7 @@ import utils.Algorithms;
 public class MainSolution {
     public static void main(String[] args) {
         Algorithms algorithms = new Algorithms();
-        Graph graph = new Graph(GraphType.MOCK_UNDIRECTED);
+        Graph graph = new Graph(GraphType.UNDIRECTED);
         graph.setE(algorithms.countDirectedEdges(graph));
 
         int nodes = graph.getV();

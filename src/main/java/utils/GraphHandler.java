@@ -192,8 +192,9 @@ public class GraphHandler {
         graph.addUndirectedEdge(new Designer(5),new Designer(8),1);
         graph.addUndirectedEdge(new Designer(7),new Designer(6),1);
         graph.addUndirectedEdge(new Designer(6),new Designer(10),1);
+        graph.addUndirectedEdge(new Designer(8),new Designer(6),1);
 
-        graph.addUndirectedEdge(new Designer(9),new Designer(11), 1);
+        //graph.addUndirectedEdge(new Designer(9),new Designer(11), 1);
         return graph.getGraph();
     }
 }
