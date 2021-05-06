@@ -13,7 +13,6 @@ public class GraphHandler {
     // Create a graph without all information, only with followers.csv
     public static HashMap<Designer,HashSet<Followed>> createPartialGraph(String followers_file){
         HashMap<Designer,HashSet<Followed>> graph = new HashMap<>();
-
         try {
             CSVReader reader = new CSVReader(new FileReader(followers_file));
             reader.skip(1);
@@ -105,6 +104,40 @@ public class GraphHandler {
             e.printStackTrace();
         }
 
+        return graph;
+    }
+
+    // Create a graph without all information, only with followers.csv
+    public static HashMap<Designer,HashSet<Followed>> createUndirectedGraph(String followers_file){
+        HashMap<Designer,HashSet<Followed>> graph = new HashMap<>();
+        try {
+            CSVReader reader = new CSVReader(new FileReader(followers_file));
+            reader.skip(1);
+
+            String[] line = reader.readNext();
+            while(line != null){
+                Designer follower = new Designer(Integer.parseInt(line[0]));
+                Designer followed = new Designer(Integer.parseInt(line[1]));
+
+                Followed follow1 = new Followed(followed,Integer.parseInt(line[2]));
+                Followed follow2 = new Followed(follower,Integer.parseInt(line[2]));
+
+                if (!graph.containsKey(follower)) {
+                    graph.put(follower, new HashSet<>());
+                }
+
+                if (!graph.containsKey(followed)) {
+                    graph.put(followed, new HashSet<>());
+                }
+
+                graph.get(follower).add(follow1);
+                graph.get(followed).add(follow2);
+                line = reader.readNext();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         return graph;
     }
 

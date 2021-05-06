@@ -13,8 +13,8 @@ public class MainSolution {
     public static final String DESIGNERS_FILE = RESOURCES_PATH + "designers.csv";
     public static final String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
 
-    // Choose 0 | 1 | 2
-    public static final int GRAPH_CHOOSER = 1;
+    // Choose 0 | 1 | 2 | 3
+    public static final int GRAPH_CHOOSER = 2;
     public static HashMap<Designer, HashSet<Followed>> graph = null;
 
     public static void main(String[] args) {
@@ -39,6 +39,9 @@ public class MainSolution {
                 graph = GraphHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
                 break;
             case 2:
+                graph = GraphHandler.createUndirectedGraph(FOLLOWERS_FILE);
+                break;
+            case 3:
                 graph = GraphHandler.createMockGraph();
                 break;
         }
