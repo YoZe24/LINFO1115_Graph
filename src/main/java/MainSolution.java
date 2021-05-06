@@ -1,60 +1,34 @@
 import model.Designer;
-import model.Followed;
-import utils.GraphHandler;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import model.Graph;
+import model.GraphType;
+import utils.Algorithms;
 
 public class MainSolution {
-    public static final String RESOURCES_PATH = "src/main/resources/";
-
-    public static final String FOLLOWERS_FILE = RESOURCES_PATH + "followers.csv";
-    public static final String DESIGNERS_FILE = RESOURCES_PATH + "designers.csv";
-    public static final String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
-
-    public static HashMap<Designer, HashSet<Followed>> graph = null;
-
     public static void main(String[] args) {
-        graph = chooseGraph(GraphEnum.UNDIRECTED);
+        Algorithms algorithms = new Algorithms();
+        Graph graph = new Graph(GraphType.MOCK_UNDIRECTED);
+        graph.setE(algorithms.countDirectedEdges(graph));
 
-        int countEdges = Algorithms.countEdges(graph);
-        int countComponents = Algorithms.countComponents(graph);
+        int nodes = graph.getV();
+        int countEdges = algorithms.countUndirectedEdges(graph);
+        int countComponents = algorithms.countComponents(graph);
+        int bridges = algorithms.bridges(graph);
+        int localBridges = 0;
 
-        System.out.println("Nombre d'edges : " + countEdges + "\n" +
-                           "Nombre de components : " + countComponents + "\n");
+        System.out.println(
+                            "Nombre de noeuds : " + nodes + "\n"
+                            + "Nombre d'edges : " + countEdges + "\n"
+                            + "Nombre de components : " + countComponents + "\n"
+                            + "Nombre de bridges : " + bridges + "\n"
+                            + "Nombre de local bridges : " + localBridges + "\n"
+        );
 
         //printGraph(graph);
     }
 
-    public static HashMap<Designer, HashSet<Followed>> chooseGraph(GraphEnum graphEnum){
-        HashMap<Designer, HashSet<Followed>> graph = null;
-        switch (graphEnum) {
-            case FOLLOWERS:
-                graph = GraphHandler.createPartialGraph(FOLLOWERS_FILE);
-                break;
-            case COMPLETE:
-                graph = GraphHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
-                break;
-            case MOCK:
-                graph = GraphHandler.createMockGraph();
-                break;
-            case UNDIRECTED:
-                graph = GraphHandler.createUndirectedGraph(FOLLOWERS_FILE);
-        }
-        return graph;
-    }
-
-    public static void printGraph(HashMap<Designer, HashSet<Followed>> graph){
-        for (Map.Entry<Designer, HashSet<Followed>> entry : graph.entrySet()) {
-            System.out.println(entry);
+    public static void printGraph(Graph graph){
+        for (Designer designer: graph.getAllV()) {
+            System.out.println(designer + " : " + graph.adjFollows(designer));
         }
     }
-}
-
-enum GraphEnum{
-    FOLLOWERS,
-    COMPLETE,
-    MOCK,
-    UNDIRECTED
 }
