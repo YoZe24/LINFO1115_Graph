@@ -14,7 +14,7 @@ public class MainSolution {
     public static final String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
 
     // Choose 0 | 1 | 2
-    public static final int GRAPH_CHOOSER = 1;
+    public static final GraphEnum GRAPH_CHOOSER = GraphEnum.COMPLETE;
     public static HashMap<Designer, HashSet<Followed>> graph = null;
 
     public static void main(String[] args) {
@@ -29,16 +29,16 @@ public class MainSolution {
         //printGraph(graph);
     }
 
-    public static HashMap<Designer, HashSet<Followed>> chooseGraph(int r){
+    public static HashMap<Designer, HashSet<Followed>> chooseGraph(GraphEnum graphEnum){
         HashMap<Designer, HashSet<Followed>> graph = null;
-        switch (r) {
-            case 0:
+        switch (graphEnum) {
+            case FOLLOWERS:
                 graph = GraphHandler.createPartialGraph(FOLLOWERS_FILE);
                 break;
-            case 1:
+            case COMPLETE:
                 graph = GraphHandler.createCompleteGraph(FOLLOWERS_FILE, DESIGNERS_FILE, SHOTS_FILE);
                 break;
-            case 2:
+            case MOCK:
                 graph = GraphHandler.createMockGraph();
                 break;
         }
@@ -50,4 +50,10 @@ public class MainSolution {
             System.out.println(entry);
         }
     }
+}
+
+enum GraphEnum{
+    FOLLOWERS,
+    COMPLETE,
+    MOCK
 }
