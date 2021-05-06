@@ -13,12 +13,10 @@ public class MainSolution {
     public static final String DESIGNERS_FILE = RESOURCES_PATH + "designers.csv";
     public static final String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
 
-    // Choose 0 | 1 | 2
-    public static final int GRAPH_CHOOSER = 1;
     public static HashMap<Designer, HashSet<Followed>> graph = null;
 
     public static void main(String[] args) {
-        graph = chooseGraph(GRAPH_CHOOSER);
+        graph = chooseGraph(GraphEnum.UNDIRECTED);
 
         int countEdges = Algorithms.countEdges(graph);
         int countComponents = Algorithms.countComponents(graph);
@@ -41,6 +39,8 @@ public class MainSolution {
             case MOCK:
                 graph = GraphHandler.createMockGraph();
                 break;
+            case UNDIRECTED:
+                graph = GraphHandler.createUndirectedGraph(FOLLOWERS_FILE);
         }
         return graph;
     }
@@ -55,5 +55,6 @@ public class MainSolution {
 enum GraphEnum{
     FOLLOWERS,
     COMPLETE,
-    MOCK
+    MOCK,
+    UNDIRECTED
 }
