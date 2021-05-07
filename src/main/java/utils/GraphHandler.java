@@ -111,9 +111,11 @@ public class GraphHandler {
     // Create a graph without all information, only with followers.csv
     public static HashMap<Designer,HashSet<Followed>> createUndirectedGraph(String followers_file){
         HashMap<Designer,HashSet<Followed>> graph = new HashMap<>();
+        int i = 0;
         try {
             CSVReader reader = new CSVReader(new FileReader(followers_file));
             reader.skip(1);
+
 
             String[] line = reader.readNext();
             while(line != null){
@@ -131,6 +133,9 @@ public class GraphHandler {
                     graph.put(followed, new HashSet<>());
                 }
 
+                if (graph.get(follower).contains(follow1)) i ++;
+                if (graph.get(followed).contains(follow2)) i ++;
+
                 graph.get(follower).add(follow1);
                 graph.get(followed).add(follow2);
                 line = reader.readNext();
@@ -139,6 +144,7 @@ public class GraphHandler {
         catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println(i);
         return graph;
     }
 

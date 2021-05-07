@@ -4,6 +4,7 @@ import model.Designer;
 import model.Followed;
 import model.Graph;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Algorithms {
@@ -55,7 +56,6 @@ public class Algorithms {
         HashSet<Followed> edges = graph.getAllE();
         HashSet<Followed> bridges = new HashSet<>();
 
-        int i = 0;
         for (Followed edge : edges) {
             marked = new HashSet<>();
             graph.removeUndirectedEdge(edge.getFollower(), edge);
@@ -65,8 +65,6 @@ public class Algorithms {
                     bridges.add(edge);
                 }
             }
-            System.out.println(i);
-            i++;
             graph.addUndirectedEdge(edge.getFollower(), edge.getWho(), edge.getTimeStamp());
         }
         return bridges.size();

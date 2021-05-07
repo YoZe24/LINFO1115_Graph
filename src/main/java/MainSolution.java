@@ -12,7 +12,7 @@ public class MainSolution {
         int nodes = graph.getV();
         int countEdges = algorithms.countUndirectedEdges(graph);
         int countComponents = algorithms.countComponents(graph);
-        int bridges = algorithms.bridges(graph);
+        int bridges = 0;
         int localBridges = 0;
 
         System.out.println(
