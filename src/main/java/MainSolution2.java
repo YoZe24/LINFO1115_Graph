@@ -12,67 +12,65 @@ public class MainSolution2 {
     static String DESIGNERS_FILE = RESOURCES_PATH + "designers.csv";
     static String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
     static int YEAR_IN_SECONDS = 31622400;
+
+    static HashMap<Integer, String> designers = createGraphDesigner();
     public static void main(String[] args) {
+
         HashMap<Integer, HashSet<Integer>> graph = createGraph();
 
         HashMap<Integer, HashSet<Integer>> subgraph;
-//        HashMap<Integer, Float> pageRank;
-//        HashMap<Integer, String> designers = createGraphDesigner();
-//        HashMap<Integer, List<Integer>> shots = createGraphShots();
-//
-//        System.out.println("Nodes : " + graph.size());
-//        System.out.println("Edges : " + countEdges(graph));
-//        System.out.println("Components : " + countComponents(graph));
-//        bridge(graph);
-//        System.out.println("Bridges : " + count);
+        HashMap<Integer, Float> pageRank;
+        HashMap<Integer, List<Integer>> shots = createGraphShots();
+
+        System.out.println("Nodes : " + graph.size());
+        System.out.println("Edges : " + countEdges(graph));
+        System.out.println("Components : " + countComponents(graph));
+        bridge(graph);
+        System.out.println("Bridges : " + count);
 
         subgraph = largestComponent(graph);
-//        HashMap<Integer, HashSet<Integer>> reverse = reverseGraph((HashMap<Integer, HashSet<Integer>>) subgraph.clone());
+        HashMap<Integer, HashSet<Integer>> reverse = reverseGraph((HashMap<Integer, HashSet<Integer>>) subgraph.clone());
 
         System.out.println("Largest component size : " + subgraph.size());
         System.out.println("Largest component edges : " + countEdges(subgraph));
 
         System.out.println("Local bridges : " + localBridge(graph));
 
-//        System.out.println(reverseGraph(mockDirectedGraph()));
-//        pageRank = computePageRank(subgraph,100,0.9f);
-//        List<Integer> maxs = getHighestValues(20, (HashMap<Integer, Float>) pageRank.clone());
-//
-//        System.out.println("---------------------------------");
-//        System.out.println("PAGE RANK : ");
-//        System.out.println("---------------------------------");
-//        int i = 1;
-//        for(int max:maxs){
-////            System.out.print("Top " + i++ + ", designer : "+max);
-////            System.out.printf(", pr value : %10.9f", pageRank.get(max));
-////            System.out.print(", "+designers.get(max));
-////            float avgLikes = 0;
-////            if(shots.get(max) != null) {
-////                for (int v : shots.get(max)) {
-////                    avgLikes += v;
-////                }
-////                avgLikes /= shots.get(max).size();
-////            }
-////            System.out.println(", avg likes : "+avgLikes+", followed : "+subgraph.get(max)+", follower : "+reverse.get(max));
-//            System.out.print(i++ + " & "+max);
-//            System.out.printf(" & %12.11f", pageRank.get(max));
-//            System.out.print(" & 0 & 0 & 0 & " +designers.get(max) + "\n");
-//        }
-//
-//        float sum = 0f;
-//        for(int v:pageRank.keySet()){
-//            sum+=pageRank.get(v);
-//        }
-////        sum = Arrays.stream(pageRank).reduce(0f,(f1,f2) -> f1 + f2);
-//        System.out.println("PR SUM : " +sum);
+        System.out.println(reverseGraph(mockDirectedGraph()));
+        pageRank = computePageRank(subgraph,100,0.9f);
+        List<Integer> maxs = getHighestValues(20, (HashMap<Integer, Float>) pageRank.clone());
 
-        computeTriadicClosure(subgraph);
+        System.out.println("---------------------------------");
+        System.out.println("PAGE RANK : ");
+        System.out.println("---------------------------------");
+        int i = 1;
+        for(int max:maxs){
+            System.out.print("Top " + i++ + ", designer : "+max);
+            System.out.printf(", pr value : %10.9f", pageRank.get(max));
+            System.out.print(", "+designers.get(max));
+            float avgLikes = 0;
+            if(shots.get(max) != null) {
+                for (int v : shots.get(max)) {
+                    avgLikes += v;
+                }
+                avgLikes /= shots.get(max).size();
+            }
+            System.out.println(", avg likes : "+avgLikes+", followed : "+subgraph.get(max)+", follower : "+reverse.get(max));
+        }
+
+        System.out.println(computeTriadicClosure(subgraph).size());
 
     }
 
-    public static List<ProbableTriadicClosure> computeTriadicClosure(HashMap<Integer,HashSet<Integer>> G){
-        HashMap<Integer, HashSet<Follow>> graph = createFollowGraph(getLargestNodes(G));
+    public static boolean areInSameTown(ProbableTriadicClosure closure){
+        return designers.get(closure.getDesigner())
+                .equals(designers.get(closure.getFollowed()))
+                &&
+                designers.get(closure.getDesigner())
+                    .equals(designers.get(closure.getProbableFollowed()));
+    }
 
+    public static int getMinYear(HashMap<Integer,HashSet<Follow>> graph){
         int minYear = Integer.MAX_VALUE;
         for(int v:graph.keySet()){
             for(Follow follow:graph.get(v)){
@@ -81,22 +79,29 @@ public class MainSolution2 {
                 }
             }
         }
+        return minYear;
+    }
+
+    public static List<ProbableTriadicClosure> computeTriadicClosure(HashMap<Integer,HashSet<Integer>> G){
+        HashMap<Integer, HashSet<Follow>> graph = createFollowGraph(getLargestNodes(G));
+
 
         HashMap<Integer,HashSet<ProbableTriadicClosure>> probableOverYears = new HashMap<>();
         HashSet<ProbableTriadicClosure> probables = new HashSet<>();
 
-        minYear = (minYear / YEAR_IN_SECONDS) * YEAR_IN_SECONDS;
-        int year =1975+ (minYear/YEAR_IN_SECONDS);
-        System.out.println(year);
+        int minYear = (getMinYear(graph) / YEAR_IN_SECONDS) * YEAR_IN_SECONDS;
+        int year = 1975 + (minYear/YEAR_IN_SECONDS);
         for(int curYear = year; curYear <= 2021 ; curYear++){
 
             for(int v: graph.keySet()){
                 if(graph.get(v).size() >= 2){
 
                     for(Follow follow: graph.get(v)){
-
-                        probables.addAll(getProbableClosure(graph,graph.get(v),graph.get(follow.getFollowed()),curYear));
-
+                        if(graph.get(follow.getFollowed()) != null && graph.get(follow.getFollowed()).size() >= 1) {
+                            probables.addAll(
+                                    getProbableClosure(graph, v, follow.getFollowed(), curYear)
+                            );
+                        }
                     }
 
                 }
@@ -111,10 +116,14 @@ public class MainSolution2 {
 
             for(ProbableTriadicClosure closure: probableOverYears.get(y)) {
                 for (Follow follow : graph.get(closure.getDesigner())){
+
                     if (follow.getFollowed() == closure.getProbableFollowed()) {
-                        closure.setTimeStampRealised(follow.getTimeStamp());
-                        closuresRealised.add(closure);
+                        if(areInSameTown(closure)){
+                            closure.setTimeStampRealised(follow.getTimeStamp());
+                            closuresRealised.add(closure);
+                        }
                     }
+
                 }
             }
 
@@ -124,17 +133,22 @@ public class MainSolution2 {
 
     }
 
-    public static HashSet<ProbableTriadicClosure> getProbableClosure(HashMap<Integer,HashSet<Follow>> graph, HashSet<Follow> fFollower, HashSet<Follow> fFollowed, int year){
+    public static HashSet<ProbableTriadicClosure> getProbableClosure(HashMap<Integer,HashSet<Follow>> graph, int follower, int followed, int year){
         HashSet<ProbableTriadicClosure> closures = new HashSet<>();
+        HashSet<Follow> followsFromFollower = graph.get(follower);
+        HashSet<Follow> followsFromFollowed = graph.get(followed);
 
         ProbableTriadicClosure closure;
-        for(Follow follow:fFollower){
-            for(Follow f:fFollowed){
-                if(!graph.get(f.getFollowed()).contains(follow.getFollower())){
+        for(Follow follow:followsFromFollower){
+            for(Follow f:followsFromFollowed){
+                if(graph.get(f.getFollowed()) != null &&
+                        !graph.get(f.getFollowed()).contains(follow.getFollower())){
+
                     if(f.getTimeStamp() >= year && f.getTimeStamp() < year + YEAR_IN_SECONDS) {
                         closure = new ProbableTriadicClosure(follow.getFollower(), follow.getFollowed(), f.getFollower(), f.getTimeStamp());
                         closures.add(closure);
                     }
+
                 }
             }
         }

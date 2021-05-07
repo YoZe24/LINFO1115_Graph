@@ -4,13 +4,13 @@ import java.util.Objects;
 
 public class ProbableTriadicClosure {
     private int designer;
-    private int follow1;
+    private int followed;
     private int probableFollowed;
     private int timeStamp,timeStampRealised;
 
-    public ProbableTriadicClosure(int designer, int follow1, int probableFollowed, int timeStamp) {
+    public ProbableTriadicClosure(int designer, int followed, int probableFollowed, int timeStamp) {
         this.designer = designer;
-        this.follow1 = follow1;
+        this.followed = followed;
         this.probableFollowed = probableFollowed;
         this.timeStamp = timeStamp;
         this.timeStampRealised = 0;
@@ -24,12 +24,12 @@ public class ProbableTriadicClosure {
         this.designer = designer;
     }
 
-    public int getFollow1() {
-        return follow1;
+    public int getFollowed() {
+        return followed;
     }
 
-    public void setFollow1(int follow1) {
-        this.follow1 = follow1;
+    public void setFollowed(int followed) {
+        this.followed = followed;
     }
 
     public int getProbableFollowed() {
@@ -62,12 +62,12 @@ public class ProbableTriadicClosure {
         if (o == null || getClass() != o.getClass()) return false;
         ProbableTriadicClosure that = (ProbableTriadicClosure) o;
         return designer == that.designer &&
-                follow1 == that.follow1 &&
+                followed == that.followed &&
                 probableFollowed == that.probableFollowed;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(designer, follow1, probableFollowed);
+        return Objects.hash(designer, followed, probableFollowed);
     }
 }
