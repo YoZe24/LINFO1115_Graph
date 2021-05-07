@@ -2,14 +2,14 @@ package model;
 
 import java.util.Objects;
 
-public class Followed {
+public class Follow {
     private Designer follower;
-    private Designer who;
+    private Designer followed;
     private int timeStamp;
 
-    public Followed(Designer follower, Designer who, int timeStamp) {
+    public Follow(Designer follower, Designer followed, int timeStamp) {
         this.follower = follower;
-        this.who = who;
+        this.followed = followed;
         this.timeStamp = timeStamp;
     }
 
@@ -17,12 +17,12 @@ public class Followed {
 
     public void setFollower(Designer follower) { this.follower = follower; }
 
-    public Designer getWho() {
-        return who;
+    public Designer getFollowed() {
+        return followed;
     }
 
-    public void setWho(Designer who) {
-        this.who = who;
+    public void setFollowed(Designer followed) {
+        this.followed = followed;
     }
 
     public int getTimeStamp() {
@@ -37,20 +37,20 @@ public class Followed {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Followed followed = (Followed) o;
-        return timeStamp == followed.timeStamp && follower.equals(followed.follower) && who.equals(followed.who);
+        Follow follow = (Follow) o;
+        return timeStamp == follow.timeStamp && follower.equals(follow.follower) && followed.equals(follow.followed);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(follower, who, timeStamp);
+        return Objects.hash(follower, followed, timeStamp);
     }
 
     @Override
     public String toString() {
         return "Followed{" +
                 "follower=" + follower +
-                ", who=" + who +
+                ", who=" + followed +
                 ", timeStamp=" + timeStamp +
                 '}';
     }

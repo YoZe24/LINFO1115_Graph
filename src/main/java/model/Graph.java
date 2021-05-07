@@ -9,7 +9,7 @@ import java.util.Set;
 public class Graph {
     private int V;
     private int E;
-    private HashMap<Designer, HashSet<Followed>> graph;
+    private HashMap<Designer, HashSet<Follow>> graph;
 
     public Graph(){
         graph = new HashMap<>();
@@ -59,7 +59,7 @@ public class Graph {
     }
 
     public void addEdge(Designer v, Designer w, int timeStamp){
-        Followed follow = new Followed(v,w,timeStamp);
+        Follow follow = new Follow(v,w,timeStamp);
 
         if (!graph.containsKey(v)) {
             graph.put(v, new HashSet<>());
@@ -69,8 +69,8 @@ public class Graph {
     }
 
     public void addUndirectedEdge(Designer v, Designer w, int timeStamp){
-        Followed follow1 = new Followed(v,w,timeStamp);
-        Followed follow2 = new Followed(w,v,timeStamp);
+        Follow follow1 = new Follow(v,w,timeStamp);
+        Follow follow2 = new Follow(w,v,timeStamp);
 
         if (!graph.containsKey(v)) {
             graph.put(v, new HashSet<>());
@@ -84,14 +84,14 @@ public class Graph {
         graph.get(w).add(follow2);
     }
 
-    public HashSet<Followed> adjFollows(Designer v){
+    public HashSet<Follow> adjFollows(Designer v){
         return graph.get(v);
     }
 
     public HashSet<Designer> adjDesigners(Designer v){
         HashSet<Designer> neighbours = new HashSet<>();
-        for (Followed follow : adjFollows(v)) {
-            neighbours.add(follow.getWho());
+        for (Follow follow : adjFollows(v)) {
+            neighbours.add(follow.getFollowed());
         }
         return neighbours;
     }
@@ -100,28 +100,28 @@ public class Graph {
         return graph.keySet();
     }
     
-    public HashSet<Followed> getAllE(){
-        HashSet<Followed> set = new HashSet<>();
+    public HashSet<Follow> getAllE(){
+        HashSet<Follow> set = new HashSet<>();
         for (Designer designer : graph.keySet()) {
             set.addAll(graph.get(designer));
         }
         return set;
     }
 
-    public void removeDirectedEdge(Designer v, Followed follow) {
+    public void removeDirectedEdge(Designer v, Follow follow) {
         graph.get(v).remove(follow);
     }
 
-    public void removeUndirectedEdge(Designer v, Followed follow) {
-        graph.get(v).remove(follow);
-        graph.get(follow.getWho()).remove(new Followed(follow.getWho(),follow.getFollower(),follow.getTimeStamp()));
+    public void removeUndirectedEdge(Follow follow) {
+        graph.get(follow.getFollowed()).remove(new Follow(follow.getFollowed(), follow.getFollower(), follow.getTimeStamp()));
+        graph.get(follow.getFollower()).remove(new Follow(follow.getFollower(),follow.getFollowed(),follow.getTimeStamp()));
     }
 
-    public HashMap<Designer, HashSet<Followed>> getGraph() {
+    public HashMap<Designer, HashSet<Follow>> getGraph() {
         return graph;
     }
 
-    public void setGraph(HashMap<Designer, HashSet<Followed>> graph) {
+    public void setGraph(HashMap<Designer, HashSet<Follow>> graph) {
         this.graph = graph;
     }
 }

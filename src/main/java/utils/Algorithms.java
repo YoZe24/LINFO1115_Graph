@@ -1,7 +1,7 @@
 package utils;
 
 import model.Designer;
-import model.Followed;
+import model.Follow;
 import model.Graph;
 
 import java.util.HashSet;
@@ -20,11 +20,7 @@ public class Algorithms {
     }
 
     public int countUndirectedEdges(Graph graph){
-        int count = 0;
-        for (Designer designer : graph.getAllV()) {
-            count += graph.adjFollows(designer).size();
-        }
-        return count/2;
+        return countDirectedEdges(graph)/2;
     }
 
     public int countComponents(Graph graph) {
@@ -42,8 +38,8 @@ public class Algorithms {
     public void dfs(Graph graph, Designer src){
         marked.add(src);
         if (graph.adjFollows(src) != null){
-            for (Followed follow : graph.adjFollows(src)) {
-                Designer d = follow.getWho();
+            for (Follow follow : graph.adjFollows(src)) {
+                Designer d = follow.getFollowed();
                 if (!marked.contains(d)) {
                     dfs(graph, d);
                 }
@@ -52,19 +48,19 @@ public class Algorithms {
     }
     
     public int bridges(Graph graph){
-        HashSet<Followed> edges = graph.getAllE();
-        HashSet<Followed> bridges = new HashSet<>();
+        HashSet<Follow> edges = graph.getAllE();
+        HashSet<Follow> bridges = new HashSet<>();
 
-        for (Followed edge : edges) {
+        for (Follow edge : edges) {
             marked = new HashSet<>();
-            graph.removeUndirectedEdge(edge.getFollower(), edge);
+            graph.removeUndirectedEdge( edge);
             dfs(graph, edge.getFollower());
-            if (marked.contains(edge.getWho())) {
-                if (!bridges.contains(new Followed(edge.getFollower(),edge.getWho(), edge.getTimeStamp())) && !bridges.contains(new Followed(edge.getWho(), edge.getFollower(), edge.getTimeStamp()))){
+            if (marked.contains(edge.getFollowed())) {
+                if (!bridges.contains(new Follow(edge.getFollower(),edge.getFollowed(), edge.getTimeStamp())) && !bridges.contains(new Follow(edge.getFollowed(), edge.getFollower(), edge.getTimeStamp()))){
                     bridges.add(edge);
                 }
             }
-            graph.addUndirectedEdge(edge.getFollower(), edge.getWho(), edge.getTimeStamp());
+            graph.addUndirectedEdge(edge.getFollower(), edge.getFollowed(), edge.getTimeStamp());
         }
         return bridges.size();
     }

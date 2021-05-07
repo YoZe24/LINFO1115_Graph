@@ -1,10 +1,7 @@
 import com.opencsv.CSVReader;
 
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class MainSolution2 {
     static String RESOURCES_PATH = "src/main/resources/";
@@ -14,35 +11,61 @@ public class MainSolution2 {
 
     public static void main(String[] args) {
         HashMap<Integer, HashSet<Integer>> graph = createGraph();
+        HashMap<Integer, HashSet<Integer>> subgraph = new HashMap<>();
         System.out.println("Nodes : " + graph.size());
         System.out.println("Edges : " + countEdges(graph));
         System.out.println("Components : " + countComponents(graph));
-        bridge(graph);
+//        bridge(graph);
+        subgraph = largestComponent(graph);
+        System.out.println("Larget component size : " + subgraph.size());
+        System.out.println("Larget component edges : " + countEdges(subgraph));
+
         System.out.println("Bridges : " + count);
         System.out.println("Local bridges : " + localBridge(graph));
     }
 
-    static HashMap<Integer, Integer> counters; // compteur / noeud
+    static HashSet<Integer> lastMarked = new HashSet<Integer>();
 
     public static HashMap<Integer, HashSet<Integer>> largestComponent(HashMap<Integer, HashSet<Integer>> graph){
-        counters = new HashMap<>(); // compteur / noeud
         marked = new HashSet<>();
-        int cpt = 0;
+        HashSet<Integer> largestCCMarked = new HashSet<>();
+
+        int maxCpt = Integer.MIN_VALUE;
         for (int v : graph.keySet()) {
-            if (!marked.contains(v) && !graph.get(v).isEmpty()){
-                dfsL(graph, v);
+            if (!marked.contains(v) && !graph.get(v).isEmpty()) {
+                lastMarked.clear();
+                dfsLargest(graph, v);
+
+                if(lastMarked.size() > maxCpt){
+                    maxCpt = lastMarked.size();
+                    largestCCMarked = (HashSet<Integer>) lastMarked.clone();
+                }
                 count++;
             }
         }
-        return count;
+
+        HashMap<Integer,HashSet<Integer>> subgraph = createSubgraph(graph,largestCCMarked);
+        return subgraph;
     }
 
-    public static void dfsL(HashMap<Integer, HashSet<Integer>> graph, int src, ){
+    public static HashMap<Integer,HashSet<Integer>> createSubgraph(HashMap<Integer,HashSet<Integer>> graph,HashSet<Integer> marked){
+        HashMap<Integer,HashSet<Integer>> subgraph = new HashMap<>();
+        for(int v:marked){
+            if(!subgraph.containsKey(v)){
+                subgraph.put(v,graph.get(v));
+            }
+        }
+        return subgraph;
+    }
+
+
+    public static void dfsLargest(HashMap<Integer, HashSet<Integer>> graph, int src){
+        lastMarked.add(src);
         marked.add(src);
         if (graph.get(src) != null){
             for (int v : graph.get(src)) {
                 if (!marked.contains(v)) {
-                    dfs(graph, v);
+                    dfsLargest(graph, v);
                 }
             }
         }
