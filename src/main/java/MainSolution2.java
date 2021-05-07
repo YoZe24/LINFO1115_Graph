@@ -13,8 +13,8 @@ public class MainSolution2 {
     public static void main(String[] args) {
         HashMap<Integer, HashSet<Integer>> graph = createGraph();
         HashMap<Integer, HashSet<Integer>> subgraph;
-        Float[] floatPageRank;
         HashMap<Integer, Float> pageRank;
+
         System.out.println("Nodes : " + graph.size());
         System.out.println("Edges : " + countEdges(graph));
         System.out.println("Components : " + countComponents(graph));
@@ -26,11 +26,10 @@ public class MainSolution2 {
         System.out.println("Bridges : " + count);
         System.out.println("Local bridges : " + localBridge(graph));
 
-
-        pageRank = computePageRank(subgraph,100,0.90f);
+        System.out.println(reverseGraph(mockDirectedGraph()));
+        pageRank = computePageRank(subgraph,100,0.9f);
         List<Integer> maxs = getHighestValues(20, (HashMap<Integer, Float>) pageRank.clone());
 
-//        Arrays.sort(pageRank, Collections.reverseOrder());
         System.out.println("---------------------------------");
         System.out.println("PAGE RANK : ");
         System.out.println("---------------------------------");
@@ -40,15 +39,12 @@ public class MainSolution2 {
             System.out.printf("| %f\n", pageRank.get(max));
         }
 
-//        for (int i = 0; i < 20; i++) {
-////            if(i == 57915 || i == 181406 || i == 320575 || i == 70408 || i == 99199 || i == 446729 || i == 159858) {
-//                System.out.print("Top " + i + ", pr value : " + pageRank[i]);
-//                System.out.printf("| %f\n", pageRank[i]);
-////            }
-//        }
-
-//        float sum = Arrays.stream(pageRank).reduce(0f,(f1,f2) -> f1 + f2);
-//        System.out.println("PR SUM : " +sum);
+        float sum = 0f;
+        for(int v:pageRank.keySet()){
+            sum+=pageRank.get(v);
+        }
+//        sum = Arrays.stream(pageRank).reduce(0f,(f1,f2) -> f1 + f2);
+        System.out.println("PR SUM : " +sum);
     }
 
     public static List<Integer> getHighestValues(int top,HashMap<Integer,Float> values){
@@ -71,16 +67,12 @@ public class MainSolution2 {
     }
 
     public static HashMap<Integer, Float> computePageRank(HashMap<Integer,HashSet<Integer>> graph, int k, float alpha){
-        float[] pageRank = new float[7000000];
-        Float[] floatsPageRank = new Float[7000000];
-
         HashMap<Integer,Float> pageRankValues = new HashMap<>();
         HashMap<Edge,Float> edgePageRankValues = new HashMap<>();
         HashMap<Integer,HashSet<Integer>> reverseGraph = reverseGraph(graph);
 
         for (int v:graph.keySet()) {
             pageRankValues.put(v, 1.f/graph.size());
-            pageRank[v] = 1.f/graph.size();
 
             for(int w:graph.get(v)){
                 edgePageRankValues.put(new Edge(v,w), 1.f/graph.size());
@@ -106,24 +98,17 @@ public class MainSolution2 {
                 fluidIn = 0;
 
                 if(graph.get(v).size() == 0){
-                    fluidIn = pageRank[v];
-                }else {
-                    for (int ingoing : reverseGraph.get(v)) {
-                        edge = new Edge(ingoing, v);
-                        fluidIn += edgePageRankValues.get(edge);
-                    }
+                    fluidIn = pageRankValues.get(v);
+                }
+                for (int ingoing : reverseGraph.get(v)) {
+                    edge = new Edge(ingoing,v);
+                    fluidIn += edgePageRankValues.get(edge);
                 }
 
                 fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
-                pageRank[v] = fluidIn;
                 pageRankValues.put(v,fluidIn);
 
             }
-        }
-
-        int cpt = 0;
-        for (float pr:pageRank) {
-            floatsPageRank[cpt++] = new Float(pr);
         }
 
         return pageRankValues;
@@ -132,14 +117,18 @@ public class MainSolution2 {
     public static HashMap<Integer,HashSet<Integer>> reverseGraph(HashMap<Integer,HashSet<Integer>> graph){
         HashMap<Integer,HashSet<Integer>> reverse = new HashMap<>();
         for(int v: graph.keySet()){
+            reverse.put(v,new HashSet<>());
+        }
+
+        for(int v: graph.keySet()){
             for(int w: graph.get(v)){
-                if(!reverse.containsKey(w)){
-                    reverse.put(w,new HashSet<>(Arrays.asList(v)));
-                }else{
-                    reverse.get(w).add(v);
+                if(!reverse.containsKey(w)) {
+                    reverse.put(w, new HashSet<>());
                 }
+                reverse.get(w).add(v);
             }
         }
+
         return reverse;
     }
 
@@ -164,8 +153,8 @@ public class MainSolution2 {
             }
         }
 
-        HashMap<Integer,HashSet<Integer>> subgraph = createSubgraph(graph,largestCCMarked);
-//        HashMap<Integer,HashSet<Integer>> subgraph = createGraphWithMarked(largestCCMarked);
+//        HashMap<Integer,HashSet<Integer>> subgraph = createSubgraph(graph,largestCCMarked);
+        HashMap<Integer,HashSet<Integer>> subgraph = createGraphWithMarked(largestCCMarked);
         return subgraph;
     }
 
@@ -305,7 +294,7 @@ public class MainSolution2 {
         for (int v : graph.keySet()) {
             count += graph.get(v).size();
         }
-        return count/2;
+        return count;
     }
 
     public static int countComponents(HashMap<Integer, HashSet<Integer>> graph) {
@@ -363,6 +352,11 @@ public class MainSolution2 {
 
     public static HashMap<Integer, HashSet<Integer>> createGraphWithMarked(HashSet<Integer> marked){
         HashMap<Integer, HashSet<Integer>> graph = new HashMap<>();
+
+        for(int v:marked){
+            graph.put(v,new HashSet<>());
+        }
+
         try {
             CSVReader reader = new CSVReader(new FileReader(FOLLOWERS_FILE));
             reader.skip(1);
@@ -372,18 +366,8 @@ public class MainSolution2 {
                 int follower = Integer.parseInt(line[0]);
                 int followed = Integer.parseInt(line[1]);
 
-                if(marked.contains(follower) || marked.contains(followed)){
-
-                    if (!graph.containsKey(follower)) {
-                        graph.put(follower, new HashSet<>());
-                    }
-
-                    if (!graph.containsKey(followed)) {
-                        graph.put(followed, new HashSet<>());
-                    }
-
+                if(graph.containsKey(follower) ){
                     graph.get(follower).add(followed);
-                    graph.get(followed).add(follower);
                 }
 
                 line = reader.readNext();
@@ -395,7 +379,7 @@ public class MainSolution2 {
         return graph;
     }
 
-    public static HashMap<Integer,HashSet<Integer>> mockUndirectedGraph(){
+    public static HashMap<Integer,HashSet<Integer>> mockDirectedGraph(){
         HashMap<Integer,HashSet<Integer>> mock = new HashMap<>();
         mock.put(0,new HashSet<>(Arrays.asList(1,2,3)));
         mock.put(1,new HashSet<>(Arrays.asList(2,4)));
