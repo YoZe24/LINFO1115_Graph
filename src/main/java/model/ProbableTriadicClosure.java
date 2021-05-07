@@ -5,14 +5,15 @@ import java.util.Objects;
 public class ProbableTriadicClosure {
     private int designer;
     private int follow1;
-    private int follow2;
-    private int timeStamp;
+    private int probableFollowed;
+    private int timeStamp,timeStampRealised;
 
-    public ProbableTriadicClosure(int designer, int follow1,int follow2, int timeStamp) {
+    public ProbableTriadicClosure(int designer, int follow1, int probableFollowed, int timeStamp) {
         this.designer = designer;
         this.follow1 = follow1;
-        this.follow2 = follow2;
+        this.probableFollowed = probableFollowed;
         this.timeStamp = timeStamp;
+        this.timeStampRealised = 0;
     }
 
     public int getDesigner() {
@@ -31,12 +32,12 @@ public class ProbableTriadicClosure {
         this.follow1 = follow1;
     }
 
-    public int getFollow2() {
-        return follow2;
+    public int getProbableFollowed() {
+        return probableFollowed;
     }
 
-    public void setFollow2(int follow2) {
-        this.follow2 = follow2;
+    public void setProbableFollowed(int probableFollowed) {
+        this.probableFollowed = probableFollowed;
     }
 
     public int getTimeStamp() {
@@ -47,6 +48,14 @@ public class ProbableTriadicClosure {
         this.timeStamp = timeStamp;
     }
 
+    public int getTimeStampRealised() {
+        return timeStampRealised;
+    }
+
+    public void setTimeStampRealised(int timeStampRealised) {
+        this.timeStampRealised = timeStampRealised;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,11 +63,11 @@ public class ProbableTriadicClosure {
         ProbableTriadicClosure that = (ProbableTriadicClosure) o;
         return designer == that.designer &&
                 follow1 == that.follow1 &&
-                follow2 == that.follow2;
+                probableFollowed == that.probableFollowed;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(designer, follow1, follow2);
+        return Objects.hash(designer, follow1, probableFollowed);
     }
 }

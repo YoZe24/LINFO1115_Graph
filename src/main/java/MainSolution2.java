@@ -1,12 +1,10 @@
 import com.opencsv.CSVReader;
 import model.Edge;
 import model.Follow;
-import model.Follow2;
 import model.ProbableTriadicClosure;
 
 import java.io.FileReader;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MainSolution2 {
     static String RESOURCES_PATH = "src/main/resources/";
@@ -72,7 +70,7 @@ public class MainSolution2 {
 
     }
 
-    public static void computeTriadicClosure(HashMap<Integer,HashSet<Integer>> G){
+    public static List<ProbableTriadicClosure> computeTriadicClosure(HashMap<Integer,HashSet<Integer>> G){
         HashMap<Integer, HashSet<Follow>> graph = createFollowGraph(getLargestNodes(G));
 
         int minYear = Integer.MAX_VALUE;
@@ -84,8 +82,8 @@ public class MainSolution2 {
             }
         }
 
-        HashMap<Integer,HashSet<ProbableTriadicClosure>> probable = new HashMap<>();
-        Set<ProbableTriadicClosure> curProbable = new HashSet<>();
+        HashMap<Integer,HashSet<ProbableTriadicClosure>> probableOverYears = new HashMap<>();
+        HashSet<ProbableTriadicClosure> probables = new HashSet<>();
 
         minYear = (minYear / YEAR_IN_SECONDS) * YEAR_IN_SECONDS;
         int year =1975+ (minYear/YEAR_IN_SECONDS);
@@ -96,28 +94,47 @@ public class MainSolution2 {
                 if(graph.get(v).size() >= 2){
 
                     for(Follow follow: graph.get(v)){
-                        if(follow.getTimeStamp() >= curYear * YEAR_IN_SECONDS && follow.getTimeStamp() < (curYear+1) * YEAR_IN_SECONDS){
 
-                            curProbable.addAll(getProbableClosure(graph,graph.get(v),graph.get(follow.getFollowed())));
-                        }
+                        probables.addAll(getProbableClosure(graph,graph.get(v),graph.get(follow.getFollowed()),curYear));
+
                     }
 
+                }
+            }
+            probableOverYears.put(curYear,probables);
+
+        }
+
+        List<ProbableTriadicClosure> closuresRealised = new ArrayList<>();
+
+        for(int y :probableOverYears.keySet()){
+
+            for(ProbableTriadicClosure closure: probableOverYears.get(y)) {
+                for (Follow follow : graph.get(closure.getDesigner())){
+                    if (follow.getFollowed() == closure.getProbableFollowed()) {
+                        closure.setTimeStampRealised(follow.getTimeStamp());
+                        closuresRealised.add(closure);
+                    }
                 }
             }
 
         }
 
+        return closuresRealised;
+
     }
 
-    public static List<ProbableTriadicClosure> getProbableClosure(HashMap<Integer,HashSet<Follow>> graph, HashSet<Follow> fFollower, HashSet<Follow> fFollowed){
-        List<ProbableTriadicClosure> closures = new ArrayList<>();
+    public static HashSet<ProbableTriadicClosure> getProbableClosure(HashMap<Integer,HashSet<Follow>> graph, HashSet<Follow> fFollower, HashSet<Follow> fFollowed, int year){
+        HashSet<ProbableTriadicClosure> closures = new HashSet<>();
 
         ProbableTriadicClosure closure;
         for(Follow follow:fFollower){
             for(Follow f:fFollowed){
                 if(!graph.get(f.getFollowed()).contains(follow.getFollower())){
-                    closure = new ProbableTriadicClosure(follow.getFollower(),follow.getFollowed(),f.getFollower(),follow.getTimeStamp());
-                    closures.add(closure);
+                    if(f.getTimeStamp() >= year && f.getTimeStamp() < year + YEAR_IN_SECONDS) {
+                        closure = new ProbableTriadicClosure(follow.getFollower(), follow.getFollowed(), f.getFollower(), f.getTimeStamp());
+                        closures.add(closure);
+                    }
                 }
             }
         }
