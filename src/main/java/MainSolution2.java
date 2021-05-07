@@ -25,12 +25,14 @@ public class MainSolution2 {
         System.out.println("Bridges : " + count);
         System.out.println("Local bridges : " + localBridge(graph));
 
-        pageRank = computePageRank(subgraph,100,0.85f);
+
+        System.out.println(reverseGraph(mockUndirectedGraph()));
+        pageRank = computePageRank(mockUndirectedGraph(),2,1f);
         Arrays.sort(pageRank, Collections.reverseOrder());
         System.out.println("---------------------------------");
         System.out.println("PAGE RANK : ");
         System.out.println("---------------------------------");
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
             System.out.print("Top "+i+", pr value : "+pageRank[i]);
             System.out.printf("| %f\n", pageRank[i]);
         }
@@ -74,7 +76,7 @@ public class MainSolution2 {
                     edge = new Edge(ingoing,v);
                     fluidIn += edgePageRankValues.get(edge);
                 }
-                fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
+//                fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
                 pageRank[v] = fluidIn;
                 pageRankValues.put(v,fluidIn);
 
@@ -353,5 +355,15 @@ public class MainSolution2 {
             e.printStackTrace();
         }
         return graph;
+    }
+
+    public static HashMap<Integer,HashSet<Integer>> mockUndirectedGraph(){
+        HashMap<Integer,HashSet<Integer>> mock = new HashMap<>();
+        mock.put(0,new HashSet<>(Arrays.asList(1,2,3)));
+        mock.put(1,new HashSet<>(Arrays.asList(2,4)));
+        mock.put(2,new HashSet<>(Arrays.asList(4)));
+        mock.put(3,new HashSet<>(Arrays.asList(2,4)));
+        mock.put(4,new HashSet<>(Arrays.asList(0)));
+        return mock;
     }
 }
