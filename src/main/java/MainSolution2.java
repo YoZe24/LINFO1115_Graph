@@ -13,7 +13,8 @@ public class MainSolution2 {
     public static void main(String[] args) {
         HashMap<Integer, HashSet<Integer>> graph = createGraph();
         HashMap<Integer, HashSet<Integer>> subgraph;
-        Float[] pageRank;
+        Float[] floatPageRank;
+        HashMap<Integer, Float> pageRank;
         System.out.println("Nodes : " + graph.size());
         System.out.println("Edges : " + countEdges(graph));
         System.out.println("Components : " + countComponents(graph));
@@ -26,19 +27,50 @@ public class MainSolution2 {
         System.out.println("Local bridges : " + localBridge(graph));
 
 
-        System.out.println(reverseGraph(mockUndirectedGraph()));
-        pageRank = computePageRank(mockUndirectedGraph(),2,1f);
-        Arrays.sort(pageRank, Collections.reverseOrder());
+        pageRank = computePageRank(subgraph,100,0.90f);
+        List<Integer> maxs = getHighestValues(20, (HashMap<Integer, Float>) pageRank.clone());
+
+//        Arrays.sort(pageRank, Collections.reverseOrder());
         System.out.println("---------------------------------");
         System.out.println("PAGE RANK : ");
         System.out.println("---------------------------------");
-        for (int i = 0; i < 5; i++) {
-            System.out.print("Top "+i+", pr value : "+pageRank[i]);
-            System.out.printf("| %f\n", pageRank[i]);
+        int i = 1;
+        for(int max:maxs){
+            System.out.print("Top " + i++ + ", designer : "+max+", pr value : " + pageRank.get(max));
+            System.out.printf("| %f\n", pageRank.get(max));
         }
+
+//        for (int i = 0; i < 20; i++) {
+////            if(i == 57915 || i == 181406 || i == 320575 || i == 70408 || i == 99199 || i == 446729 || i == 159858) {
+//                System.out.print("Top " + i + ", pr value : " + pageRank[i]);
+//                System.out.printf("| %f\n", pageRank[i]);
+////            }
+//        }
+
+//        float sum = Arrays.stream(pageRank).reduce(0f,(f1,f2) -> f1 + f2);
+//        System.out.println("PR SUM : " +sum);
     }
 
-    public static Float[] computePageRank(HashMap<Integer,HashSet<Integer>> graph, int k, float alpha){
+    public static List<Integer> getHighestValues(int top,HashMap<Integer,Float> values){
+        List<Integer> maxs = new ArrayList<>();
+        float max;
+        int indexMax;
+        for (int i = 0; i < top; i++) {
+            max = 0f;
+            indexMax = 0;
+            for (int v:values.keySet()) {
+                if(values.get(v) > max){
+                    max = values.get(v);
+                    indexMax = v;
+                }
+            }
+            maxs.add(new Integer(indexMax));
+            values.remove(indexMax);
+        }
+        return maxs;
+    }
+
+    public static HashMap<Integer, Float> computePageRank(HashMap<Integer,HashSet<Integer>> graph, int k, float alpha){
         float[] pageRank = new float[7000000];
         Float[] floatsPageRank = new Float[7000000];
 
@@ -72,11 +104,17 @@ public class MainSolution2 {
 
             for(int v:graph.keySet()){
                 fluidIn = 0;
-                for(int ingoing :reverseGraph.get(v)) {
-                    edge = new Edge(ingoing,v);
-                    fluidIn += edgePageRankValues.get(edge);
+
+                if(graph.get(v).size() == 0){
+                    fluidIn = pageRank[v];
+                }else {
+                    for (int ingoing : reverseGraph.get(v)) {
+                        edge = new Edge(ingoing, v);
+                        fluidIn += edgePageRankValues.get(edge);
+                    }
                 }
-//                fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
+
+                fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
                 pageRank[v] = fluidIn;
                 pageRankValues.put(v,fluidIn);
 
@@ -88,7 +126,7 @@ public class MainSolution2 {
             floatsPageRank[cpt++] = new Float(pr);
         }
 
-        return floatsPageRank;
+        return pageRankValues;
     }
 
     public static HashMap<Integer,HashSet<Integer>> reverseGraph(HashMap<Integer,HashSet<Integer>> graph){
