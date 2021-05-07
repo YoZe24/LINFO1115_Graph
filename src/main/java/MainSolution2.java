@@ -1,6 +1,4 @@
 import com.opencsv.CSVReader;
-import model.Followed;
-import model.Graph;
 
 import java.io.FileReader;
 import java.util.HashMap;
@@ -21,6 +19,28 @@ public class MainSolution2 {
         System.out.println("Components : " + countComponents(graph));
         bridge(graph);
         System.out.println("Bridges : " + count);
+        System.out.println("Local bridges : " + localBridge(graph));
+    }
+
+    public static int localBridge(HashMap<Integer, HashSet<Integer>> graph){
+        int count = 0;
+        for (int v : graph.keySet()) {
+            for (int w : graph.get(v)) {
+                if (compareNeighbours(graph.get(v), graph.get(w))){
+                    count++;
+                }
+            }
+        }
+        return count/2;
+    }
+
+    public static boolean compareNeighbours(HashSet<Integer> a, HashSet<Integer> b){
+        for (int x : a) {
+            if (b.contains(x)){
+                return false;
+            }
+        }
+        return true;
     }
 
     static int time = 0;

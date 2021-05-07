@@ -4,7 +4,6 @@ import model.Designer;
 import model.Followed;
 import model.Graph;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class Algorithms {
