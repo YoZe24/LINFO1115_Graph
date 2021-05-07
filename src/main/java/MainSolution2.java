@@ -22,6 +22,33 @@ public class MainSolution2 {
         System.out.println("Local bridges : " + localBridge(graph));
     }
 
+    static HashMap<Integer, Integer> counters; // compteur / noeud
+
+    public static HashMap<Integer, HashSet<Integer>> largestComponent(HashMap<Integer, HashSet<Integer>> graph){
+        counters = new HashMap<>(); // compteur / noeud
+        marked = new HashSet<>();
+        int cpt = 0;
+        for (int v : graph.keySet()) {
+            if (!marked.contains(v) && !graph.get(v).isEmpty()){
+                dfsL(graph, v);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void dfsL(HashMap<Integer, HashSet<Integer>> graph, int src, ){
+        marked.add(src);
+        if (graph.get(src) != null){
+            for (int v : graph.get(src)) {
+                if (!marked.contains(v)) {
+                    dfs(graph, v);
+                }
+            }
+        }
+    }
+
+
     public static int localBridge(HashMap<Integer, HashSet<Integer>> graph){
         int count = 0;
         for (int v : graph.keySet()) {
