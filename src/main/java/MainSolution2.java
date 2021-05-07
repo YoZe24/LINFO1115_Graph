@@ -1,4 +1,5 @@
 import com.opencsv.CSVReader;
+import model.Edge;
 
 import java.io.FileReader;
 import java.util.*;
@@ -11,7 +12,8 @@ public class MainSolution2 {
 
     public static void main(String[] args) {
         HashMap<Integer, HashSet<Integer>> graph = createGraph();
-        HashMap<Integer, HashSet<Integer>> subgraph = new HashMap<>();
+        HashMap<Integer, HashSet<Integer>> subgraph;
+        Float[] pageRank;
         System.out.println("Nodes : " + graph.size());
         System.out.println("Edges : " + countEdges(graph));
         System.out.println("Components : " + countComponents(graph));
@@ -22,7 +24,85 @@ public class MainSolution2 {
 
         System.out.println("Bridges : " + count);
         System.out.println("Local bridges : " + localBridge(graph));
+
+        pageRank = computePageRank(subgraph,100,0.85f);
+        Arrays.sort(pageRank, Collections.reverseOrder());
+        System.out.println("---------------------------------");
+        System.out.println("PAGE RANK : ");
+        System.out.println("---------------------------------");
+        for (int i = 0; i < 20; i++) {
+            System.out.print("Top "+i+", pr value : "+pageRank[i]);
+            System.out.printf("| %f\n", pageRank[i]);
+        }
     }
+
+    public static Float[] computePageRank(HashMap<Integer,HashSet<Integer>> graph, int k, float alpha){
+        float[] pageRank = new float[7000000];
+        Float[] floatsPageRank = new Float[7000000];
+
+        HashMap<Integer,Float> pageRankValues = new HashMap<>();
+        HashMap<Edge,Float> edgePageRankValues = new HashMap<>();
+        HashMap<Integer,HashSet<Integer>> reverseGraph = reverseGraph(graph);
+
+        for (int v:graph.keySet()) {
+            pageRankValues.put(v, 1.f/graph.size());
+            pageRank[v] = 1.f/graph.size();
+
+            for(int w:graph.get(v)){
+                edgePageRankValues.put(new Edge(v,w), 1.f/graph.size());
+            }
+        }
+
+        int out;
+        float fluidOut,fluidIn;
+        Edge edge;
+
+        for (int i = 0; i < k; i++) {
+            for(int v:graph.keySet()){
+                out = graph.get(v).size();
+
+                fluidOut = pageRankValues.get(v) / out;
+                for(int outgoing :graph.get(v)){
+                    edge = new Edge(v,outgoing);
+                    edgePageRankValues.put(edge,fluidOut);
+                }
+            }
+
+            for(int v:graph.keySet()){
+                fluidIn = 0;
+                for(int ingoing :reverseGraph.get(v)) {
+                    edge = new Edge(ingoing,v);
+                    fluidIn += edgePageRankValues.get(edge);
+                }
+                fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
+                pageRank[v] = fluidIn;
+                pageRankValues.put(v,fluidIn);
+
+            }
+        }
+
+        int cpt = 0;
+        for (float pr:pageRank) {
+            floatsPageRank[cpt++] = new Float(pr);
+        }
+
+        return floatsPageRank;
+    }
+
+    public static HashMap<Integer,HashSet<Integer>> reverseGraph(HashMap<Integer,HashSet<Integer>> graph){
+        HashMap<Integer,HashSet<Integer>> reverse = new HashMap<>();
+        for(int v: graph.keySet()){
+            for(int w: graph.get(v)){
+                if(!reverse.containsKey(w)){
+                    reverse.put(w,new HashSet<>(Arrays.asList(v)));
+                }else{
+                    reverse.get(w).add(v);
+                }
+            }
+        }
+        return reverse;
+    }
+
 
     static HashSet<Integer> lastMarked = new HashSet<Integer>();
 
@@ -45,6 +125,7 @@ public class MainSolution2 {
         }
 
         HashMap<Integer,HashSet<Integer>> subgraph = createSubgraph(graph,largestCCMarked);
+//        HashMap<Integer,HashSet<Integer>> subgraph = createGraphWithMarked(largestCCMarked);
         return subgraph;
     }
 
@@ -231,6 +312,40 @@ public class MainSolution2 {
 
                 graph.get(follower).add(followed);
                 graph.get(followed).add(follower);
+                line = reader.readNext();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return graph;
+    }
+
+    public static HashMap<Integer, HashSet<Integer>> createGraphWithMarked(HashSet<Integer> marked){
+        HashMap<Integer, HashSet<Integer>> graph = new HashMap<>();
+        try {
+            CSVReader reader = new CSVReader(new FileReader(FOLLOWERS_FILE));
+            reader.skip(1);
+
+            String[] line = reader.readNext();
+            while(line != null){
+                int follower = Integer.parseInt(line[0]);
+                int followed = Integer.parseInt(line[1]);
+
+                if(marked.contains(follower) || marked.contains(followed)){
+
+                    if (!graph.containsKey(follower)) {
+                        graph.put(follower, new HashSet<>());
+                    }
+
+                    if (!graph.containsKey(followed)) {
+                        graph.put(followed, new HashSet<>());
+                    }
+
+                    graph.get(follower).add(followed);
+                    graph.get(followed).add(follower);
+                }
+
                 line = reader.readNext();
             }
         }
