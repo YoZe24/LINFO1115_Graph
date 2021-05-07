@@ -3,25 +3,29 @@ package model;
 import java.util.Objects;
 
 public class Follow {
-    private Designer follower;
-    private Designer followed;
+    private int follower;
+    private int followed;
     private int timeStamp;
 
-    public Follow(Designer follower, Designer followed, int timeStamp) {
+    public Follow(int follower, int followed, int timeStamp) {
         this.follower = follower;
         this.followed = followed;
         this.timeStamp = timeStamp;
     }
 
-    public Designer getFollower() { return follower; }
+    public int getFollower() {
+        return follower;
+    }
 
-    public void setFollower(Designer follower) { this.follower = follower; }
+    public void setFollower(int follower) {
+        this.follower = follower;
+    }
 
-    public Designer getFollowed() {
+    public int getFollowed() {
         return followed;
     }
 
-    public void setFollowed(Designer followed) {
+    public void setFollowed(int followed) {
         this.followed = followed;
     }
 
@@ -38,20 +42,14 @@ public class Follow {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Follow follow = (Follow) o;
-        return timeStamp == follow.timeStamp && follower.equals(follow.follower) && followed.equals(follow.followed);
+        return (follower == follow.follower &&
+                followed == follow.followed) ||
+                (followed == follow.follower &&
+                follower == follow.followed);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(follower, followed, timeStamp);
-    }
-
-    @Override
-    public String toString() {
-        return "Followed{" +
-                "follower=" + follower +
-                ", who=" + followed +
-                ", timeStamp=" + timeStamp +
-                '}';
+        return Objects.hash(follower, followed);
     }
 }

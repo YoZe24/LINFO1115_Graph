@@ -1,7 +1,7 @@
 package utils;
 
 import model.Designer;
-import model.Follow;
+import model.Follow2;
 import model.Graph;
 
 import java.util.HashSet;
@@ -38,7 +38,7 @@ public class Algorithms {
     public void dfs(Graph graph, Designer src){
         marked.add(src);
         if (graph.adjFollows(src) != null){
-            for (Follow follow : graph.adjFollows(src)) {
+            for (Follow2 follow : graph.adjFollows(src)) {
                 Designer d = follow.getFollowed();
                 if (!marked.contains(d)) {
                     dfs(graph, d);
@@ -48,15 +48,15 @@ public class Algorithms {
     }
     
     public int bridges(Graph graph){
-        HashSet<Follow> edges = graph.getAllE();
-        HashSet<Follow> bridges = new HashSet<>();
+        HashSet<Follow2> edges = graph.getAllE();
+        HashSet<Follow2> bridges = new HashSet<>();
 
-        for (Follow edge : edges) {
+        for (Follow2 edge : edges) {
             marked = new HashSet<>();
             graph.removeUndirectedEdge( edge);
             dfs(graph, edge.getFollower());
             if (marked.contains(edge.getFollowed())) {
-                if (!bridges.contains(new Follow(edge.getFollower(),edge.getFollowed(), edge.getTimeStamp())) && !bridges.contains(new Follow(edge.getFollowed(), edge.getFollower(), edge.getTimeStamp()))){
+                if (!bridges.contains(new Follow2(edge.getFollower(),edge.getFollowed(), edge.getTimeStamp())) && !bridges.contains(new Follow2(edge.getFollowed(), edge.getFollower(), edge.getTimeStamp()))){
                     bridges.add(edge);
                 }
             }

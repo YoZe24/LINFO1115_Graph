@@ -1,51 +1,130 @@
 import com.opencsv.CSVReader;
 import model.Edge;
+import model.Follow;
+import model.Follow2;
+import model.ProbableTriadicClosure;
 
 import java.io.FileReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MainSolution2 {
     static String RESOURCES_PATH = "src/main/resources/";
     static String FOLLOWERS_FILE = RESOURCES_PATH + "followers.csv";
     static String DESIGNERS_FILE = RESOURCES_PATH + "designers.csv";
     static String SHOTS_FILE = RESOURCES_PATH + "shots.csv";
-
+    static int YEAR_IN_SECONDS = 31622400;
     public static void main(String[] args) {
         HashMap<Integer, HashSet<Integer>> graph = createGraph();
+
         HashMap<Integer, HashSet<Integer>> subgraph;
-        HashMap<Integer, Float> pageRank;
-
-        System.out.println("Nodes : " + graph.size());
-        System.out.println("Edges : " + countEdges(graph));
-        System.out.println("Components : " + countComponents(graph));
+//        HashMap<Integer, Float> pageRank;
+//        HashMap<Integer, String> designers = createGraphDesigner();
+//        HashMap<Integer, List<Integer>> shots = createGraphShots();
+//
+//        System.out.println("Nodes : " + graph.size());
+//        System.out.println("Edges : " + countEdges(graph));
+//        System.out.println("Components : " + countComponents(graph));
 //        bridge(graph);
-        subgraph = largestComponent(graph);
-        System.out.println("Larget component size : " + subgraph.size());
-        System.out.println("Larget component edges : " + countEdges(subgraph));
+//        System.out.println("Bridges : " + count);
 
-        System.out.println("Bridges : " + count);
+        subgraph = largestComponent(graph);
+//        HashMap<Integer, HashSet<Integer>> reverse = reverseGraph((HashMap<Integer, HashSet<Integer>>) subgraph.clone());
+
+        System.out.println("Largest component size : " + subgraph.size());
+        System.out.println("Largest component edges : " + countEdges(subgraph));
+
         System.out.println("Local bridges : " + localBridge(graph));
 
-        System.out.println(reverseGraph(mockDirectedGraph()));
-        pageRank = computePageRank(subgraph,100,0.9f);
-        List<Integer> maxs = getHighestValues(20, (HashMap<Integer, Float>) pageRank.clone());
+//        System.out.println(reverseGraph(mockDirectedGraph()));
+//        pageRank = computePageRank(subgraph,100,0.9f);
+//        List<Integer> maxs = getHighestValues(20, (HashMap<Integer, Float>) pageRank.clone());
+//
+//        System.out.println("---------------------------------");
+//        System.out.println("PAGE RANK : ");
+//        System.out.println("---------------------------------");
+//        int i = 1;
+//        for(int max:maxs){
+////            System.out.print("Top " + i++ + ", designer : "+max);
+////            System.out.printf(", pr value : %10.9f", pageRank.get(max));
+////            System.out.print(", "+designers.get(max));
+////            float avgLikes = 0;
+////            if(shots.get(max) != null) {
+////                for (int v : shots.get(max)) {
+////                    avgLikes += v;
+////                }
+////                avgLikes /= shots.get(max).size();
+////            }
+////            System.out.println(", avg likes : "+avgLikes+", followed : "+subgraph.get(max)+", follower : "+reverse.get(max));
+//            System.out.print(i++ + " & "+max);
+//            System.out.printf(" & %12.11f", pageRank.get(max));
+//            System.out.print(" & 0 & 0 & 0 & " +designers.get(max) + "\n");
+//        }
+//
+//        float sum = 0f;
+//        for(int v:pageRank.keySet()){
+//            sum+=pageRank.get(v);
+//        }
+////        sum = Arrays.stream(pageRank).reduce(0f,(f1,f2) -> f1 + f2);
+//        System.out.println("PR SUM : " +sum);
 
-        System.out.println("---------------------------------");
-        System.out.println("PAGE RANK : ");
-        System.out.println("---------------------------------");
-        int i = 1;
-        for(int max:maxs){
-            System.out.print("Top " + i++ + ", designer : "+max+", pr value : " + pageRank.get(max));
-            System.out.printf("| %f\n", pageRank.get(max));
-        }
+        computeTriadicClosure(subgraph);
 
-        float sum = 0f;
-        for(int v:pageRank.keySet()){
-            sum+=pageRank.get(v);
-        }
-//        sum = Arrays.stream(pageRank).reduce(0f,(f1,f2) -> f1 + f2);
-        System.out.println("PR SUM : " +sum);
     }
+
+    public static void computeTriadicClosure(HashMap<Integer,HashSet<Integer>> G){
+        HashMap<Integer, HashSet<Follow>> graph = createFollowGraph(getLargestNodes(G));
+
+        int minYear = Integer.MAX_VALUE;
+        for(int v:graph.keySet()){
+            for(Follow follow:graph.get(v)){
+                if(follow.getTimeStamp() < minYear){
+                    minYear = follow.getTimeStamp();
+                }
+            }
+        }
+
+        HashMap<Integer,HashSet<ProbableTriadicClosure>> probable = new HashMap<>();
+        Set<ProbableTriadicClosure> curProbable = new HashSet<>();
+
+        minYear = (minYear / YEAR_IN_SECONDS) * YEAR_IN_SECONDS;
+        int year =1975+ (minYear/YEAR_IN_SECONDS);
+        System.out.println(year);
+        for(int curYear = year; curYear <= 2021 ; curYear++){
+
+            for(int v: graph.keySet()){
+                if(graph.get(v).size() >= 2){
+
+                    for(Follow follow: graph.get(v)){
+                        if(follow.getTimeStamp() >= curYear * YEAR_IN_SECONDS && follow.getTimeStamp() < (curYear+1) * YEAR_IN_SECONDS){
+
+                            curProbable.addAll(getProbableClosure(graph,graph.get(v),graph.get(follow.getFollowed())));
+                        }
+                    }
+
+                }
+            }
+
+        }
+
+    }
+
+    public static List<ProbableTriadicClosure> getProbableClosure(HashMap<Integer,HashSet<Follow>> graph, HashSet<Follow> fFollower, HashSet<Follow> fFollowed){
+        List<ProbableTriadicClosure> closures = new ArrayList<>();
+
+        ProbableTriadicClosure closure;
+        for(Follow follow:fFollower){
+            for(Follow f:fFollowed){
+                if(!graph.get(f.getFollowed()).contains(follow.getFollower())){
+                    closure = new ProbableTriadicClosure(follow.getFollower(),follow.getFollowed(),f.getFollower(),follow.getTimeStamp());
+                    closures.add(closure);
+                }
+            }
+        }
+
+        return closures;
+    }
+
 
     public static List<Integer> getHighestValues(int top,HashMap<Integer,Float> values){
         List<Integer> maxs = new ArrayList<>();
@@ -105,12 +184,12 @@ public class MainSolution2 {
                     fluidIn += edgePageRankValues.get(edge);
                 }
 
-                fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
-                pageRankValues.put(v,fluidIn);
+                if(alpha != -1)
+                    fluidIn  = alpha * fluidIn + ((1.f - alpha) / graph.size() );
 
+                pageRankValues.put(v,fluidIn);
             }
         }
-
         return pageRankValues;
     }
 
@@ -135,7 +214,7 @@ public class MainSolution2 {
 
     static HashSet<Integer> lastMarked = new HashSet<Integer>();
 
-    public static HashMap<Integer, HashSet<Integer>> largestComponent(HashMap<Integer, HashSet<Integer>> graph){
+    public static HashSet<Integer> getLargestNodes(HashMap<Integer,HashSet<Integer>> graph){
         marked = new HashSet<>();
         HashSet<Integer> largestCCMarked = new HashSet<>();
 
@@ -152,9 +231,14 @@ public class MainSolution2 {
                 count++;
             }
         }
+        return largestCCMarked;
+    }
+
+    public static HashMap<Integer, HashSet<Integer>> largestComponent(HashMap<Integer, HashSet<Integer>> graph){
+
 
 //        HashMap<Integer,HashSet<Integer>> subgraph = createSubgraph(graph,largestCCMarked);
-        HashMap<Integer,HashSet<Integer>> subgraph = createGraphWithMarked(largestCCMarked);
+        HashMap<Integer,HashSet<Integer>> subgraph = createGraphWithMarked(getLargestNodes(graph));
         return subgraph;
     }
 
@@ -369,6 +453,94 @@ public class MainSolution2 {
                 if(graph.containsKey(follower) ){
                     graph.get(follower).add(followed);
                 }
+
+                line = reader.readNext();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return graph;
+    }
+
+    public static HashMap<Integer, String> createGraphDesigner(){
+        HashMap<Integer, String> graph = new HashMap<>();
+        try {
+            CSVReader reader = new CSVReader(new FileReader(DESIGNERS_FILE));
+            reader.skip(1);
+
+            String[] line = reader.readNext();
+            while(line != null){
+                int designer = Integer.parseInt(line[0]);
+                String location = line[1];
+
+                if(!graph.containsKey(designer) ){
+                    graph.put(designer, location.trim());
+                }
+
+                line = reader.readNext();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return graph;
+    }
+
+    public static HashMap<Integer,HashSet<Follow>> createFollowGraph(HashSet<Integer> marked){
+        HashMap<Integer, HashSet<Follow>> graph = new HashMap<>();
+
+        for(int v:marked){
+            graph.put(v,new HashSet<>());
+        }
+
+        try {
+            CSVReader reader = new CSVReader(new FileReader(FOLLOWERS_FILE));
+            reader.skip(1);
+
+            String[] line = reader.readNext();
+            while(line != null){
+                int follower = Integer.parseInt(line[0]);
+                int followed = Integer.parseInt(line[1]);
+                int ts = Integer.parseInt(line[2]);
+
+                Follow follow = new Follow(follower,followed,ts);
+                if(graph.containsKey(follower) ){
+                    graph.get(follower).add(follow);
+                }
+
+                Follow follow2 = new Follow(followed,follower,ts);
+                if(!graph.containsKey(followed)){
+                    graph.put(followed,new HashSet<>());
+                }
+                graph.get(followed).add(follow2);
+
+                line = reader.readNext();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return graph;
+    }
+
+    public static HashMap<Integer, List<Integer>> createGraphShots(){
+        HashMap<Integer, List<Integer>> graph = new HashMap<>();
+        try {
+            CSVReader reader = new CSVReader(new FileReader(SHOTS_FILE));
+            reader.skip(1);
+
+            String[] line = reader.readNext();
+            while(line != null){
+                int designer = Integer.parseInt(line[0]);
+                int shotID = Integer.parseInt(line[1]);
+                int like = Integer.parseInt(line[2]);
+
+                if(!graph.containsKey(designer) ){
+                    graph.put(designer, new ArrayList<>());
+                }
+
+                graph.get(designer).add(like);
 
                 line = reader.readNext();
             }
